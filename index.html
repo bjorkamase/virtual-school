@@ -3,83 +3,73 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sekolah Virtual Mobile Friendly</title>
+    <title>Sekolah Virtual Lengkap</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
     
     <style>
-      /* Overlay menu dibuat lebih kecil agar muat di layar HP */
-      #ui-overlay { 
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(44, 62, 80, 0.95); z-index: 10000; 
-        display: flex; justify-content: center; align-items: center; 
-        flex-direction: column; color: white; font-family: sans-serif;
-      }
-      .menu-box { 
-        background: white; padding: 20px; border-radius: 12px; 
-        color: #333; text-align: center; width: 80%; max-width: 300px;
-      }
-      .btn { 
-        width: 100%; padding: 12px; margin: 8px 0; 
-        cursor: pointer; border: none; border-radius: 8px; 
-        color: white; font-weight: bold; font-size: 14px;
-        display: block; /* Memastikan tombol mudah diklik di HP */
-      }
-      /* Panel Guru dipindah ke bawah agar tidak menutupi pandangan di HP */
-      #teacher-controls { 
-        position: fixed; bottom: 10px; right: 10px; 
-        background: rgba(255,255,255,0.9); padding: 10px; 
-        display: none; border-radius: 10px; z-index: 500; 
-        border: 1px solid #ccc; font-size: 12px;
-      }
-      #board-input { width: 120px; padding: 5px; }
+      #ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; font-family: sans-serif; }
+      .menu-box { background: white; padding: 30px; border-radius: 15px; color: #333; text-align: center; width: 280px; }
+      .btn { width: 100%; padding: 15px; margin: 10px 0; cursor: pointer; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 16px; }
+      #teacher-panel { position: fixed; bottom: 10px; left: 10px; background: rgba(255,255,255,0.9); padding: 10px; display: none; border-radius: 8px; z-index: 1000; border: 2px solid #333; }
     </style>
   </head>
   <body>
 
     <div id="ui-overlay">
       <div class="menu-box">
-        <h2 style="margin:0 0 15px 0; font-size: 18px;">PILIH PERAN</h2>
-        <button class="btn" style="background:#e74c3c" onclick="mulai('Kepala Sekolah')">KEPALA SEKOLAH</button>
-        <button class="btn" style="background:#3498db" onclick="mulai('Guru')">GURU</button>
-        <button class="btn" style="background:#2ecc71" onclick="mulai('Murid')">MURID</button>
+        <h2 style="margin:0">MASUK SEKOLAH</h2>
+        <p>Pilih Peran Anda:</p>
+        <button class="btn" style="background:#e74c3c" onclick="gas('Kepala Sekolah')">KEPALA SEKOLAH</button>
+        <button class="btn" style="background:#3498db" onclick="gas('Guru')">GURU</button>
+        <button class="btn" style="background:#2ecc71" onclick="gas('Murid')">MURID</button>
       </div>
     </div>
 
-    <div id="teacher-controls">
-      <strong>Panel Guru</strong><br>
-      <input type="text" id="board-input" placeholder="Isi papan...">
-      <button onclick="updatePapan()">Kirim</button>
+    <div id="teacher-panel">
+      <input type="text" id="inp" placeholder="Ketik pesan papan...">
+      <button onclick="setPapan()">Kirim</button>
     </div>
 
-    <a-scene embedded style="height: 500px; width: 100%;">
-      <a-entity environment="preset: classroom; dressingAmount: 0;"></a-entity>
+    <a-scene embedded style="height: 600px; width: 100%;">
+      <a-entity environment="preset: contact; groundColor: #4b5320; dressing: trees; dressingAmount: 50; dressingColor: #2d5a27; shadow: true;"></a-entity>
 
-      <a-box position="0 2.5 -5" width="5" height="2" color="#1B3022"></a-box>
-      <a-text id="board-text" value="Menunggu Guru..." position="0 2.5 -4.9" align="center" color="white" width="5"></a-text>
+      <a-box position="0 2 15" width="6" height="4" depth="0.5" color="#7f8c8d" opacity="0.3"></a-box>
+      <a-text value="GERBANG SEKOLAH" position="0 4.5 15" align="center" color="white" width="10"></a-text>
 
-      <a-entity id="rig" position="0 1.6 2">
-        <a-camera look-controls="magicWindowTrackingEnabled: false; touchEnabled: true" wasd-controls></a-camera>
+      <a-plane position="0 0.02 -5" rotation="-90 0 0" width="12" height="12" color="#bdc3c7"></a-plane>
+      <a-box position="0 2 -11" width="12" height="4" depth="0.2" color="#ecf0f1"></a-box>
+      <a-box position="0 2.5 -10.8" width="6" height="2.5" color="#1B3022"></a-box>
+      <a-text id="txt-papan" value="Selamat Datang!" position="0 2.5 -10.7" align="center" color="white" width="6"></a-text>
+      <a-box position="-6 2 -5" width="0.2" height="4" depth="12" color="#ecf0f1"></a-box>
+      <a-box position="6 2 -5" width="0.2" height="4" depth="12" color="#ecf0f1"></a-box>
+      <a-cone position="0 5.5 -5" radius-bottom="9" height="3" segments-radial="4" rotation="0 45 0" color="#c0392b"></a-cone>
+
+      <a-cylinder position="0 3 5" radius="0.1" height="6" color="#bdc3c7"></a-cylinder>
+      <a-box position="0.5 5.5 5" width="1" height="0.6" depth="0.1" color="red"></a-box>
+      <a-box position="0.5 4.9 5" width="1" height="0.6" depth="0.1" color="white"></a-box>
+
+      <a-entity id="rig" position="0 1.6 18">
+        <a-camera look-controls="touchEnabled: true" wasd-controls="acceleration: 100"></a-camera>
       </a-entity>
     </a-scene>
 
     <script>
-      function mulai(peran) {
-        console.log("Tombol ditekan: " + peran);
+      function gas(peran) {
+        // Hilangkan overlay dengan paksa
+        document.getElementById('ui-overlay').style.setProperty('display', 'none', 'important');
         
-        // MENGHILANGKAN POP-UP (Paksa sembunyi)
-        const overlay = document.getElementById('ui-overlay');
-        overlay.style.setProperty('display', 'none', 'important');
-        
-        // Munculkan kontrol jika Guru/Kepsek
         if(peran === 'Guru' || peran === 'Kepala Sekolah') {
-          document.getElementById('teacher-controls').style.display = 'block';
+          document.getElementById('teacher-panel').style.display = 'block';
         }
+        
+        // Suara sambutan sederhana
+        alert("Anda masuk sebagai " + peran + ". Silakan jalan lurus ke gerbang!");
       }
 
-      function updatePapan() {
-        const pesan = document.getElementById('board-input').value;
-        document.getElementById('board-text').setAttribute('value', pesan);
+      function setPapan() {
+        const val = document.getElementById('inp').value;
+        document.getElementById('txt-papan').setAttribute('value', val);
       }
     </script>
   </body>
