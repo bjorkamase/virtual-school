@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sekolah Virtual V2</title>
+    <meta charset="utf-8">
+    <title>Sekolah Virtual Kece</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.5.0/socket.io.slim.js"></script>
-    <script src="https://unpkg.com/networked-aframe@^0.11.0/dist/networked-aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
-
+    
     <style>
-      #ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif; }
-      .menu-box { background: #222; padding: 20px; border-radius: 15px; text-align: center; border: 2px solid #3498db; }
-      .btn { padding: 12px 25px; margin: 5px; cursor: pointer; border: none; border-radius: 8px; color: white; font-weight: bold; }
-      #teacher-controls { position: fixed; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 10px; display: none; border-radius: 10px; z-index: 100; }
+      #ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif; }
+      .menu-box { background: white; padding: 30px; border-radius: 15px; color: #333; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+      .btn { padding: 15px 30px; margin: 10px; cursor: pointer; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 16px; }
+      #teacher-controls { position: fixed; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 15px; display: none; border-radius: 10px; z-index: 100; border: 1px solid #ccc; }
     </style>
   </head>
   <body>
 
     <div id="ui-overlay">
       <div class="menu-box">
-        <h2>PILIH PERAN ANDA</h2>
+        <h1 style="margin-top:0">🏫 SEKOLAH VIRTUAL</h1>
+        <p>Pilih peran untuk memulai:</p>
         <button class="btn" style="background:#e74c3c" onclick="start('Kepala Sekolah')">KEPALA SEKOLAH</button>
         <button class="btn" style="background:#3498db" onclick="start('Guru')">GURU</button>
         <button class="btn" style="background:#2ecc71" onclick="start('Murid')">MURID</button>
@@ -26,65 +26,39 @@
     </div>
 
     <div id="teacher-controls">
-      <small>Panel Kontrol Guru</small><br>
-      <input type="text" id="board-input" placeholder="Tulis di papan...">
+      <strong>Panel Guru</strong><br>
+      <input type="text" id="board-input" placeholder="Tulis sesuatu...">
       <button onclick="updateBoard()">Update Papan</button>
     </div>
 
-    <a-scene networked-scene="room: sekolah_v2; adapter: wseasyrtc;">
+    <a-scene>
+      <a-entity environment="preset: default; groundColor: #445; dressingAmount: 10;"></a-entity>
+
+      <a-box position="0 0.5 -4" width="2" height="1" depth="1" color="#8B4513"></a-box>
       
-      <a-assets>
-        <template id="avatar-template">
-          <a-entity class="avatar">
-            <a-sphere class="head" scale="0.25 0.3 0.2" color="#fff"></a-sphere>
-            <a-box class="body" position="0 -0.4 0" scale="0.4 0.6 0.2"></a-box>
-          </a-entity>
-        </template>
-      </a-assets>
+      <a-box position="0 2.5 -6" width="6" height="3" depth="0.1" color="#1B3022"></a-box>
+      <a-text id="board-text" value="Selamat Datang!" position="0 2.5 -5.9" align="center" color="white" width="6"></a-text>
 
-      <a-entity environment="preset: classroom; dressingAmount: 0; groundColor: #333;"></a-entity>
+      <a-plane position="0 0.01 -3" rotation="-90 0 0" width="15" height="15" color="#ecf0f1"></a-plane>
 
-      <a-box position="0 2 -8" width="14" height="4" depth="0.2" color="#ecf0f1"></a-box> <a-box id="blackboard" position="0 2.5 -7.8" width="7" height="2.5" depth="0.1" color="#1B3022"></a-box>
-      <a-text id="board-text" value="Selamat Datang di Kelas!" position="0 2.5 -7.7" align="center" color="white" width="6"></a-text>
-
-      <a-box position="0 0.5 -5" width="2" height="1" depth="1" color="#4b2c20"></a-box>
-
-      <a-box position="-8 2 -3" width="0.2" height="4" depth="10" color="#95a5a6"></a-box> <a-text value="RUANG KEPALA SEKOLAH" position="-7.8 3 -3" rotation="0 90 0" color="black"></a-text>
-
-      <a-entity id="player" networked="template:#avatar-template;attachTemplateToLocal:false;" 
-                camera look-controls wasd-controls position="0 1.6 2">
+      <a-entity id="rig" position="0 1.6 2">
+        <a-camera look-controls wasd-controls></a-camera>
       </a-entity>
-
     </a-scene>
 
     <script>
-      let myRole = "";
-
       function start(role) {
-        myRole = role;
         document.getElementById('ui-overlay').style.display = 'none';
-        
-        // Jika Guru atau Kepsek, munculkan kontrol papan tulis
         if(role === 'Guru' || role === 'Kepala Sekolah') {
           document.getElementById('teacher-controls').style.display = 'block';
         }
+        console.log("Memulai sebagai:", role);
       }
 
       function updateBoard() {
         const txt = document.getElementById('board-input').value;
-        // Update di layar sendiri
         document.getElementById('board-text').setAttribute('value', txt);
-        
-        // Kirim ke semua orang via Networked-Aframe
-        NAF.connection.broadcastData('updateBoard', {message: txt});
       }
-
-      // Menerima update papan dari orang lain
-      document.body.addEventListener('clientConnected', function (evt) {
-        NAF.connection.subscribeToDataChannel('updateBoard', (senderId, dataType, data) => {
-          document.getElementById('board-text').setAttribute('value', data.message);
-        });
-      });
     </script>
   </body>
 </html>
