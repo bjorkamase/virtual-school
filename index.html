@@ -3,147 +3,128 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Horror School - 4 Floors</title>
+    <title>GHOST SCHOOL JUMPSCARE</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
     <style>
-      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: 'Courier New', Courier, monospace; }
-      #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; justify-content: center; align-items: center; }
-      .menu-box { background: #1a1a1a; padding: 25px; border-radius: 15px; width: 85%; max-width: 300px; text-align: center; border: 2px solid #333; color: #cc0000; }
-      .role-btn { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; background: #333; }
-      .role-btn:hover { background: #cc0000; }
-      #exit-role { position: fixed; top: 10px; right: 10px; z-index: 2000; padding: 10px; background: #444; color: #fff; border: 1px solid #777; border-radius: 5px; display: none; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: 'Courier New', monospace; }
+      #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; color: #f00; text-align: center; }
+      .menu-box { border: 2px solid #f00; padding: 30px; border-radius: 10px; background: #111; }
+      .role-btn { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #f00; background: #222; color: #f00; font-weight: bold; cursor: pointer; }
+      
+      /* JUMPSCARE OVERLAY */
+      #jumpscare-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 9999; display: none; background-size: cover; background-position: center;
+      }
       #chat-area { position: absolute; bottom: 15px; left: 10px; right: 10px; z-index: 1000; display: none; }
-      #messages { height: 70px; background: rgba(0,0,0,0.8); color: #00ff00; padding: 8px; overflow-y: auto; font-size: 11px; border: 1px solid #333; }
+      #messages { height: 60px; background: rgba(0,0,0,0.8); color: #f00; padding: 8px; overflow-y: auto; font-size: 11px; border: 1px solid #400; }
     </style>
   </head>
   <body>
 
-    <button id="exit-role" onclick="location.reload()">Reset Peran</button>
+    <div id="jumpscare-overlay"></div>
 
     <div id="ui-overlay">
       <div class="menu-box">
-        <h2 style="letter-spacing: 5px;">GHOST SCHOOL</h2>
-        <p style="color: #666;">Pilih tumbal anda:</p>
-        <button class="role-btn" onclick="start('Kepala Sekolah')">KEPALA SEKOLAH</button>
-        <button class="role-btn" onclick="start('Guru')">GURU</button>
-        <button class="btn role-btn" onclick="start('Murid')">MURID</button>
+        <h1 style="text-shadow: 0 0 10px #f00;">TEROR SEKOLAH</h1>
+        <p>Gunakan Headset & Miringkan HP</p>
+        <button class="role-btn" onclick="mulai('Tumbal')">MASUK SEKOLAH</button>
       </div>
     </div>
 
     <div id="chat-area">
       <div id="messages"></div>
       <div style="display:flex;">
-        <input type="text" id="chat-input" placeholder="Bicara..." style="flex:1; padding:10px; background:#000; color:#00ff00; border:1px solid #333;">
-        <button onclick="kirim()" style="padding:10px; background:#222; color:#fff; border:none;">Kirim</button>
+        <input type="text" id="chat-input" placeholder="..." style="flex:1; background:#000; color:#f00; border:1px solid #f00; padding:10px;">
+        <button onclick="kirim()" style="background:#400; color:#fff; border:none; padding:10px;">Kirim</button>
       </div>
     </div>
 
-    <a-scene vr-mode-ui="enabled: false" fog="type: exponential; color: #0b0b0b; density: 0.15">
-      <a-entity environment="preset: moonlight; dressing: trees; dressingColor: #1a1a1a; dressingAmount: 20; ground: flat; groundColor: #050505; grid: none;"></a-entity>
-      <a-light type="ambient" color="#222"></a-light>
-      
-      <a-entity id="school-building"></a-entity>
+    <audio id="scary-bgm" loop src="https://www.soundjay.com/ambient/creepy-background-01.mp3"></audio>
+    <audio id="scream-snd" src="https://www.soundjay.com/human/scream-01.mp3"></audio>
 
-      <a-entity id="ghost-container"></a-entity>
+    <a-scene fog="type: exponential; color: #050505; density: 0.1">
+      <a-assets>
+        <img id="ghost-face" src="https://i.imgur.com/vHqJ9S0.png">
+      </a-assets>
 
-      <a-entity id="classroom-interior" visible="false" position="100 -5 100">
-          <a-box width="12" height="4" depth="12" color="#111" side="double"></a-box>
-          <a-light type="point" intensity="0.5" position="0 3 0" color="#ff0000"></a-light>
-          <a-box position="0 2.5 -5.9" width="6" height="2" color="#050505"></a-box>
-          <a-text id="papan-tulis" value="KELAS BERHANTU" position="0 2.5 -5.8" align="center" color="#cc0000"></a-text>
-          
-          <a-entity id="student-desks"></a-entity>
-          <a-box id="exit-door" position="0 1.5 5.9" width="1.5" height="2.5" depth="0.1" color="#300" class="clickable"></a-box>
-      </a-entity>
+      <a-entity environment="preset: moonlight; dressing: trees; dressingAmount: 20; groundColor: #050505;"></a-entity>
 
-      <a-entity id="rig" position="0 1.6 20">
+      <a-entity id="rig" position="0 1.6 15">
         <a-camera look-controls="touchEnabled: true" wasd-controls="acceleration: 80">
-            <a-cursor color="#cc0000"></a-cursor>
+          <a-light type="spot" color="#fff" intensity="1.5" distance="15" angle="30" position="0 0 0"></a-light>
+          <a-cursor color="#f00"></a-cursor>
         </a-camera>
       </a-entity>
+
+      <a-entity id="school-building"></a-entity>
+
+      <a-image src="#ghost-face" position="-5 1.6 5" scale="2 3 1" look-at="#rig"></a-image>
+      <a-image src="#ghost-face" position="5 5 0" scale="2 3 1" look-at="#rig"></a-image>
+
     </a-scene>
 
     <script>
-      let myRole = "";
       const building = document.getElementById('school-building');
-      const ghostContainer = document.getElementById('ghost-container');
-
-      // 1. BUAT GEDUNG 4 LANTAI
+      
+      // Generate 24 Kelas (4 Lantai)
       for (let l = 0; l < 4; l++) {
         for (let k = 0; k < 6; k++) {
-          let xPos = (k * 6) - 15;
-          let yPos = l * 4;
+          let x = (k * 6) - 15; let y = l * 4;
           let room = document.createElement('a-entity');
-          room.setAttribute('position', `${xPos} ${yPos} 0`);
+          room.setAttribute('position', `${x} ${y} 0`);
           room.innerHTML = `
-            <a-box width="5.8" height="3.8" depth="6" color="#222"></a-box>
-            <a-box position="0 0.2 3.01" width="1.2" height="2.2" depth="0.1" color="#000" onclick="masukKelas(${l+1}, ${k+1})"></a-box>
-            <a-text value="KELAS ${l+1}0${k+1}" position="0 2.2 3.1" align="center" width="4" color="#cc0000"></a-text>
-            <a-light type="point" color="#44f" distance="3" intensity="0.4" position="0 1.5 3.2"></a-light>
+            <a-box width="5.8" height="3.8" depth="6" color="#111"></a-box>
+            <a-box position="0 0 3.01" width="1.2" height="2.2" color="#000" class="clickable"></a-box>
+            <a-text value="KELAS ${l+1}0${k+1}" position="0 2.2 3.1" align="center" color="#f00" width="4"></a-text>
           `;
           building.appendChild(room);
         }
       }
 
-      // 2. BUAT HANTU MELAYANG (Ghost System)
-      for (let i = 0; i < 15; i++) {
-        let ghost = document.createElement('a-entity');
-        let x = Math.random() * 40 - 20;
-        let y = Math.random() * 10 + 1;
-        let z = Math.random() * 20 - 5;
-        ghost.setAttribute('position', `${x} ${y} ${z}`);
-        ghost.innerHTML = `
-          <a-sphere radius="0.4" color="#fff" opacity="0.6">
-            <a-sphere radius="0.05" color="black" position="0.15 0.1 0.35"></a-sphere>
-            <a-sphere radius="0.05" color="black" position="-0.15 0.1 0.35"></a-sphere>
-          </a-sphere>
-          <a-cone radius-bottom="0.4" height="1" color="#fff" opacity="0.6" rotation="180 0 0" position="0 -0.5 0"></a-cone>
-          <a-animation attribute="position" to="${x} ${y+1} ${z}" direction="alternate" dur="2000" repeat="indefinite"></a-animation>
-        `;
-        ghostContainer.appendChild(ghost);
-      }
-
-      // 3. MEJA SISWA
-      const deskContainer = document.getElementById('student-desks');
-      for (let i = 0; i < 14; i++) {
-        let x = (i % 3 * 3) - 3; let z = (Math.floor(i / 3) * 2) - 1;
-        let d = document.createElement('a-entity');
-        d.setAttribute('position', `${x} 0 ${z}`);
-        d.innerHTML = `<a-box position="0 0.5 0" width="1.2" height="0.8" depth="0.6" color="#1a0f00"></a-box>`;
-        deskContainer.appendChild(d);
-      }
-
-      function masukKelas(l, n) {
-        document.getElementById('classroom-interior').setAttribute('visible', 'true');
-        document.getElementById('school-building').setAttribute('visible', 'false');
-        document.getElementById('rig').setAttribute('position', '100 -3.4 104');
-        addMsg("SISTEM", "Kamu memasuki kelas gelap...");
-      }
-
-      document.getElementById('exit-door').addEventListener('click', () => {
-        document.getElementById('classroom-interior').setAttribute('visible', 'false');
-        document.getElementById('school-building').setAttribute('visible', 'true');
-        document.getElementById('rig').setAttribute('position', '0 1.6 20');
-      });
-
-      function start(r) {
-        myRole = r;
+      function mulai(role) {
         document.getElementById('ui-overlay').style.display = 'none';
         document.getElementById('chat-area').style.display = 'block';
-        document.getElementById('exit-role').style.display = 'block';
-        addMsg("GHOST", "Selamat datang, " + r + ". Jangan menoleh ke belakang.");
+        document.getElementById('scary-bgm').play();
+        
+        // Mulai Random Jumpscare
+        scheduleJumpscare();
+      }
+
+      function triggerJumpscare() {
+        const overlay = document.getElementById('jumpscare-overlay');
+        const scream = document.getElementById('scream-snd');
+        
+        // Daftar gambar jumpscare (bisa ditambah)
+        const ghosts = [
+          'https://i.imgur.com/vHqJ9S0.png',
+          'https://i.imgur.com/u6N8WJt.png'
+        ];
+        
+        overlay.style.backgroundImage = `url('${ghosts[Math.floor(Math.random()*ghosts.length)]}')`;
+        overlay.style.display = 'block';
+        scream.play();
+
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          scheduleJumpscare(); // Jadwalkan jumpscare berikutnya
+        }, 500); // Tampil selama 0.5 detik
+      }
+
+      function scheduleJumpscare() {
+        let time = Math.random() * 15000 + 5000; // Antara 5 - 20 detik
+        setTimeout(triggerJumpscare, time);
       }
 
       function kirim() {
         const inp = document.getElementById('chat-input');
-        if(inp.value.trim()!="") { addMsg(myRole, inp.value); inp.value=""; }
-      }
-
-      function addMsg(s, t) {
-        const b = document.getElementById('messages');
-        b.innerHTML += `<div><b>[${s}]:</b> ${t}</div>`;
-        b.scrollTop = b.scrollHeight;
+        if(inp.value.trim()!="") {
+          const m = document.getElementById('messages');
+          m.innerHTML += `<div><b>[TUMBAL]:</b> ${inp.value}</div>`;
+          m.scrollTop = m.scrollHeight;
+          inp.value = "";
+        }
       }
     </script>
   </body>
