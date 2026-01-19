@@ -3,128 +3,151 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GHOST SCHOOL JUMPSCARE</title>
+    <title>Misteri Sekolah - Auto Door</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
     <style>
-      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: 'Courier New', monospace; }
-      #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; color: #f00; text-align: center; }
-      .menu-box { border: 2px solid #f00; padding: 30px; border-radius: 10px; background: #111; }
-      .role-btn { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #f00; background: #222; color: #f00; font-weight: bold; cursor: pointer; }
-      
-      /* JUMPSCARE OVERLAY */
-      #jumpscare-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 9999; display: none; background-size: cover; background-position: center;
-      }
-      #chat-area { position: absolute; bottom: 15px; left: 10px; right: 10px; z-index: 1000; display: none; }
-      #messages { height: 60px; background: rgba(0,0,0,0.8); color: #f00; padding: 8px; overflow-y: auto; font-size: 11px; border: 1px solid #400; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: sans-serif; }
+      #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; text-align: center; }
+      #mission-box { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; border: 1px solid #0f0; font-size: 12px; z-index: 500; border-radius: 5px; }
+      #chat-area { position: absolute; bottom: 15px; left: 10px; right: 10px; z-index: 1000; }
+      #messages { height: 80px; background: rgba(0,0,0,0.7); color: #fff; padding: 8px; overflow-y: auto; font-size: 11px; margin-bottom: 5px; }
+      .input-row { display: flex; }
+      #chat-input { flex: 1; padding: 12px; border: none; border-radius: 5px 0 0 5px; font-size: 16px; }
+      #send-btn { padding: 0 15px; background: #27ae60; color: white; border: none; border-radius: 0 5px 5px 0; }
     </style>
   </head>
   <body>
 
-    <div id="jumpscare-overlay"></div>
+    <div id="mission-box">MISI: Dekati pintu kelas untuk masuk!<br>Cari 3 angka rahasia. Jawab: /jawab [angka]</div>
 
     <div id="ui-overlay">
-      <div class="menu-box">
-        <h1 style="text-shadow: 0 0 10px #f00;">TEROR SEKOLAH</h1>
-        <p>Gunakan Headset & Miringkan HP</p>
-        <button class="role-btn" onclick="mulai('Tumbal')">MASUK SEKOLAH</button>
+      <div style="background: #222; padding: 20px; border-radius: 15px; width: 80%;">
+        <h2 style="color: #0f0;">MISI DETEKTIF SEKOLAH</h2>
+        <p>Berjalanlah mendekati pintu untuk masuk secara otomatis.</p>
+        <button style="padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 10px; font-weight: bold;" onclick="mulai()">MULAI SEKARANG</button>
       </div>
     </div>
 
-    <div id="chat-area">
+    <div id="chat-area" style="display:none;">
       <div id="messages"></div>
-      <div style="display:flex;">
-        <input type="text" id="chat-input" placeholder="..." style="flex:1; background:#000; color:#f00; border:1px solid #f00; padding:10px;">
-        <button onclick="kirim()" style="background:#400; color:#fff; border:none; padding:10px;">Kirim</button>
+      <div class="input-row">
+        <input type="text" id="chat-input" placeholder="Ketik /jawab 123">
+        <button id="send-btn" onclick="kirim()">Kirim</button>
       </div>
     </div>
 
-    <audio id="scary-bgm" loop src="https://www.soundjay.com/ambient/creepy-background-01.mp3"></audio>
-    <audio id="scream-snd" src="https://www.soundjay.com/human/scream-01.mp3"></audio>
-
-    <a-scene fog="type: exponential; color: #050505; density: 0.1">
-      <a-assets>
-        <img id="ghost-face" src="https://i.imgur.com/vHqJ9S0.png">
-      </a-assets>
-
-      <a-entity environment="preset: moonlight; dressing: trees; dressingAmount: 20; groundColor: #050505;"></a-entity>
-
-      <a-entity id="rig" position="0 1.6 15">
-        <a-camera look-controls="touchEnabled: true" wasd-controls="acceleration: 80">
-          <a-light type="spot" color="#fff" intensity="1.5" distance="15" angle="30" position="0 0 0"></a-light>
-          <a-cursor color="#f00"></a-cursor>
-        </a-camera>
-      </a-entity>
+    <a-scene shadow="type: pcfsoft">
+      <a-entity environment="preset: goldmine; lighting: point; lightPosition: 0 10 0; groundColor: #222; dressingAmount: 10;"></a-entity>
+      <a-light type="ambient" intensity="0.6" color="#bbb"></a-light>
+      <a-light type="directional" intensity="0.4" position="-1 5 2"></a-light>
 
       <a-entity id="school-building"></a-entity>
 
-      <a-image src="#ghost-face" position="-5 1.6 5" scale="2 3 1" look-at="#rig"></a-image>
-      <a-image src="#ghost-face" position="5 5 0" scale="2 3 1" look-at="#rig"></a-image>
+      <a-entity id="interior" visible="false" position="0 -20 0">
+        <a-box width="10" height="4" depth="10" color="#444" side="double"></a-box>
+        <a-box position="0 2 -4.9" width="5" height="2" color="#111"></a-box>
+        <a-text id="board-text" value="KOSONG" position="0 2 -4.8" align="center" width="5" color="#0f0"></a-text>
+        <a-sphere position="0 0 4" radius="1.5" color="red" opacity="0.5" id="exit-sensor"></a-sphere>
+        <a-text value="BERDIRI DI SINI UNTUK KELUAR" position="0 2 3.5" align="center" width="4"></a-text>
+      </a-entity>
 
+      <a-entity id="rig" position="0 1.6 15">
+        <a-camera look-controls="touchEnabled: true" wasd-controls="acceleration: 100"></a-camera>
+      </a-entity>
     </a-scene>
 
     <script>
-      const building = document.getElementById('school-building');
-      
-      // Generate 24 Kelas (4 Lantai)
+      const rig = document.getElementById('rig');
+      const school = document.getElementById('school-building');
+      const interior = document.getElementById('interior');
+      let lastWorldPos = {x: 0, y: 1.6, z: 15};
+      let inClass = false;
+
+      // Buat Gedung (4 Lantai, 24 Kelas)
       for (let l = 0; l < 4; l++) {
         for (let k = 0; k < 6; k++) {
-          let x = (k * 6) - 15; let y = l * 4;
+          let x = (k * 7) - 17.5; let y = l * 4;
           let room = document.createElement('a-entity');
           room.setAttribute('position', `${x} ${y} 0`);
           room.innerHTML = `
-            <a-box width="5.8" height="3.8" depth="6" color="#111"></a-box>
-            <a-box position="0 0 3.01" width="1.2" height="2.2" color="#000" class="clickable"></a-box>
-            <a-text value="KELAS ${l+1}0${k+1}" position="0 2.2 3.1" align="center" color="#f00" width="4"></a-text>
+            <a-box width="6" height="3.8" depth="6" color="#555"></a-box>
+            <a-box id="door-${l+1}-${k+1}" position="0 -0.5 3.1" width="1.5" height="2.5" color="#2ecc71" opacity="0.7"></a-box>
+            <a-text value="KELAS ${l+1}0${k+1}" position="0 2.5 3.2" align="center" width="5" color="white"></a-text>
           `;
-          building.appendChild(room);
+          school.appendChild(room);
         }
       }
 
-      function mulai(role) {
+      // Cek Jarak Pemain ke Pintu (Auto-Enter)
+      setInterval(() => {
+        if (inClass) {
+          // Cek sensor keluar
+          let p = rig.getAttribute('position');
+          let dist = Math.sqrt(Math.pow(p.x - 0, 2) + Math.pow(p.z - 4, 2));
+          if (dist < 1.5 && p.y < -15) keluar();
+          return;
+        }
+
+        let p = rig.getAttribute('position');
+        for (let l = 1; l <= 4; l++) {
+          for (let k = 1; k <= 6; k++) {
+            let dx = (k * 7) - 17.5;
+            let dy = (l - 1) * 4;
+            let dz = 3.5;
+            let dist = Math.sqrt(Math.pow(p.x - dx, 2) + Math.pow(p.y - (dy+1.6), 2) + Math.pow(p.z - dz, 2));
+            
+            if (dist < 1.2) masuk(l, k);
+          }
+        }
+      }, 200);
+
+      function masuk(l, k) {
+        inClass = true;
+        lastWorldPos = {...rig.getAttribute('position')};
+        let info = "TIDAK ADA PETUNJUK";
+        if(l==1 && k==2) info = "ANGKA PERTAMA: 4";
+        if(l==2 && k==4) info = "ANGKA KEDUA: 8";
+        if(l==3 && k==1) info = "ANGKA KETIGA: 2";
+
+        document.getElementById('board-text').setAttribute('value', info);
+        interior.setAttribute('visible', 'true');
+        school.setAttribute('visible', 'false');
+        rig.setAttribute('position', '0 -18.4 0');
+        addMsg("SISTEM", "Masuk ke Kelas " + l + "0" + k);
+      }
+
+      function keluar() {
+        inClass = false;
+        interior.setAttribute('visible', 'false');
+        school.setAttribute('visible', 'true');
+        rig.setAttribute('position', {x: lastWorldPos.x, y: lastWorldPos.y, z: lastWorldPos.z + 2});
+        addMsg("SISTEM", "Kembali ke Halaman");
+      }
+
+      function mulai() {
         document.getElementById('ui-overlay').style.display = 'none';
         document.getElementById('chat-area').style.display = 'block';
-        document.getElementById('scary-bgm').play();
-        
-        // Mulai Random Jumpscare
-        scheduleJumpscare();
-      }
-
-      function triggerJumpscare() {
-        const overlay = document.getElementById('jumpscare-overlay');
-        const scream = document.getElementById('scream-snd');
-        
-        // Daftar gambar jumpscare (bisa ditambah)
-        const ghosts = [
-          'https://i.imgur.com/vHqJ9S0.png',
-          'https://i.imgur.com/u6N8WJt.png'
-        ];
-        
-        overlay.style.backgroundImage = `url('${ghosts[Math.floor(Math.random()*ghosts.length)]}')`;
-        overlay.style.display = 'block';
-        scream.play();
-
-        setTimeout(() => {
-          overlay.style.display = 'none';
-          scheduleJumpscare(); // Jadwalkan jumpscare berikutnya
-        }, 500); // Tampil selama 0.5 detik
-      }
-
-      function scheduleJumpscare() {
-        let time = Math.random() * 15000 + 5000; // Antara 5 - 20 detik
-        setTimeout(triggerJumpscare, time);
       }
 
       function kirim() {
         const inp = document.getElementById('chat-input');
-        if(inp.value.trim()!="") {
-          const m = document.getElementById('messages');
-          m.innerHTML += `<div><b>[TUMBAL]:</b> ${inp.value}</div>`;
-          m.scrollTop = m.scrollHeight;
-          inp.value = "";
+        const val = inp.value.trim();
+        if(val === "/jawab 482") {
+          alert("SELAMAT! KODE BENAR! KAMU MENANG!");
+          location.reload();
+        } else if(val.startsWith("/jawab")) {
+          addMsg("SISTEM", "Kode Salah!", "red");
+        } else {
+          addMsg("USER", val, "white");
         }
+        inp.value = "";
+      }
+
+      function addMsg(s, t, c) {
+        const m = document.getElementById('messages');
+        m.innerHTML += `<div style="color:${c}"><b>[${s}]:</b> ${t}</div>`;
+        m.scrollTop = m.scrollHeight;
       }
     </script>
   </body>
