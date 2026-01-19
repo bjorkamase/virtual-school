@@ -2,81 +2,77 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sekolah Virtual Fullscreen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sekolah Virtual Mobile Pro</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
     
     <style>
-      body { margin: 0; overflow: hidden; font-family: sans-serif; }
-      
-      /* LAYAR AWAL (TOMBOL START) */
-      #start-screen {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #2c3e50; z-index: 9999;
-        display: flex; justify-content: center; align-items: center;
+      /* Memastikan body memenuhi 100% layar tanpa scroll */
+      html, body { 
+        margin: 0; padding: 0; width: 100%; height: 100%; 
+        overflow: hidden; position: fixed; background: #2c3e50;
       }
-      .start-btn {
-        padding: 20px 40px; font-size: 24px; font-weight: bold;
-        color: white; background: #27ae60; border: none; border-radius: 50px;
-        cursor: pointer; box-shadow: 0 10px #219150;
-      }
-      .start-btn:active { box-shadow: 0 5px #219150; transform: translateY(4px); }
 
-      /* MENU PILIH PERAN */
-      #role-menu {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85); z-index: 9998;
-        display: none; justify-content: center; align-items: center; flex-direction: column;
+      /* Overlay Menu yang memenuhi layar HP */
+      #ui-overlay { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.9); z-index: 10000; 
+        display: flex; justify-content: center; align-items: center; 
       }
-      .role-box { background: white; padding: 20px; border-radius: 15px; text-align: center; width: 80%; max-width: 300px; }
-      .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+      .menu-box { 
+        background: white; padding: 20px; border-radius: 15px; 
+        width: 85%; max-width: 320px; text-align: center;
+      }
+      .role-btn { 
+        width: 100%; padding: 15px; margin: 8px 0; 
+        border: none; border-radius: 10px; color: white; 
+        font-weight: bold; font-size: 16px;
+      }
 
-      /* FITUR CHAT */
-      #chat-container {
-        position: fixed; bottom: 20px; left: 10px; width: 250px;
-        z-index: 1000; display: none; flex-direction: column;
+      /* UI Chat yang proporsional di HP */
+      #chat-area {
+        position: absolute; bottom: 20px; left: 10px; right: 10px;
+        z-index: 1000; display: none; pointer-events: none;
       }
-      #chat-box {
-        height: 150px; background: rgba(0,0,0,0.6); color: white;
-        padding: 10px; border-radius: 10px 10px 0 0; overflow-y: auto; font-size: 13px;
+      #messages {
+        height: 120px; background: rgba(0,0,0,0.5); color: white;
+        padding: 8px; overflow-y: auto; border-radius: 10px 10px 0 0;
+        pointer-events: auto; font-size: 12px; font-family: sans-serif;
       }
-      #chat-input-row { display: flex; }
-      #chat-input { flex: 1; padding: 10px; border: none; border-radius: 0 0 0 10px; }
-      #send-btn { padding: 10px; background: #3498db; color: white; border: none; border-radius: 0 0 10px 0; }
+      .input-group { display: flex; pointer-events: auto; }
+      #chat-input { flex: 1; padding: 12px; border: none; border-radius: 0 0 0 10px; font-size: 16px; } /* 16px mencegah auto-zoom iOS */
+      #send-btn { padding: 0 20px; background: #3498db; color: white; border: none; border-radius: 0 0 10px 0; }
+
+      /* Memaksa A-Frame menggunakan seluruh sisa ruang */
+      a-scene { width: 100%; height: 100%; }
     </style>
   </head>
   <body>
 
-    <div id="start-screen">
-      <button class="start-btn" onclick="showRoles()">MULAI BERMAIN</button>
-    </div>
-
-    <div id="role-menu">
-      <div class="role-box">
-        <h2 style="margin-top:0">PILIH PERAN</h2>
-        <button class="btn" style="background:#e74c3c" onclick="enterGame('Kepala Sekolah')">KEPALA SEKOLAH</button>
-        <button class="btn" style="background:#3498db" onclick="enterGame('Guru')">GURU</button>
-        <button class="btn" style="background:#2ecc71" onclick="enterGame('Murid')">MURID</button>
+    <div id="ui-overlay">
+      <div class="menu-box">
+        <h2 style="margin: 0 0 15px 0">🏫 SEKOLAH VIRTUAL</h2>
+        <button class="role-btn" style="background:#e74c3c" onclick="gas('Kepala Sekolah')">KEPALA SEKOLAH</button>
+        <button class="role-btn" style="background:#3498db" onclick="gas('Guru')">GURU</button>
+        <button class="role-btn" style="background:#2ecc71" onclick="gas('Murid')">MURID</button>
       </div>
     </div>
 
-    <div id="chat-container">
-      <div id="chat-box" id="messages"></div>
-      <div id="chat-input-row">
+    <div id="chat-area">
+      <div id="messages"></div>
+      <div class="input-group">
         <input type="text" id="chat-input" placeholder="Tulis pesan...">
-        <button id="send-btn" onclick="sendChat()">Kirim</button>
+        <button id="send-btn" onclick="kirimChat()">Kirim</button>
       </div>
     </div>
 
-    <a-scene id="scene" embedded="false">
-      <a-entity environment="preset: contact; dressingAmount: 30;"></a-entity>
-
+    <a-scene shadow="type: pcfsoft" vr-mode-ui="enabled: false">
+      <a-entity environment="preset: contact; dressingAmount: 20;"></a-entity>
+      
       <a-box position="0 2 -8" width="12" height="5" color="#ecf0f1"></a-box>
       <a-box position="0 2.5 -7.8" width="7" height="3" color="#1B3022"></a-box>
-      <a-text id="papan-tulis" value="Selamat Datang!" position="0 2.5 -7.7" align="center" width="6" color="white"></a-text>
-      
-      <a-cone position="0 6 -8" radius-bottom="10" height="3" segments-radial="4" rotation="0 45 0" color="#c0392b"></a-cone>
+      <a-text id="papan" value="Selamat Datang!" position="0 2.5 -7.7" align="center" width="6" color="white"></a-text>
 
       <a-entity id="rig" position="0 1.6 5">
         <a-camera look-controls="touchEnabled: true" wasd-controls="acceleration: 100"></a-camera>
@@ -84,49 +80,49 @@
     </a-scene>
 
     <script>
-      let myRole = "";
+      let currentRole = "";
 
-      function showRoles() {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('role-menu').style.display = 'flex';
-      }
-
-      function enterGame(role) {
-        myRole = role;
-        document.getElementById('role-menu').style.display = 'none';
-        document.getElementById('chat-container').style.display = 'flex';
+      function gas(role) {
+        currentRole = role;
+        // Paksa tutup menu
+        document.getElementById('ui-overlay').style.display = 'none';
+        document.getElementById('chat-area').style.display = 'block';
         
-        addMessage("SISTEM", "Selamat datang " + role + "!", "yellow");
+        // Coba aktifkan fullscreen otomatis (beberapa HP mengizinkan)
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        }
+
+        tambahPesan("SISTEM", "Anda masuk sebagai " + role, "yellow");
       }
 
-      function sendChat() {
+      function kirimChat() {
         const input = document.getElementById('chat-input');
-        const text = input.value;
-        if (text.trim() !== "") {
-          addMessage(myRole, text, "cyan");
+        const pesan = input.value.trim();
+        if (pesan !== "") {
+          tambahPesan(currentRole, pesan, "#00efff");
           
-          // Jika ingin fitur guru update papan tulis lewat chat:
-          if ((myRole === "Guru" || myRole === "Kepala Sekolah") && text.startsWith("/papan ")) {
-             const pesanPapan = text.replace("/papan ", "");
-             document.getElementById('papan-tulis').setAttribute('value', pesanPapan);
-             addMessage("SISTEM", "Papan tulis diupdate!", "lime");
+          // Fitur Guru: Ketik "/papan Halo" untuk ganti tulisan papan
+          if ((currentRole === 'Guru' || currentRole === 'Kepala Sekolah') && pesan.startsWith("/papan ")) {
+            const teksBaru = pesan.replace("/papan ", "");
+            document.getElementById('papan').setAttribute('value', teksBaru);
+            tambahPesan("SISTEM", "Papan diupdate!", "#00ff00");
           }
-          
           input.value = "";
         }
       }
 
-      function addMessage(sender, text, color) {
-        const chatBox = document.getElementById('chat-box');
-        const msg = document.createElement('div');
-        msg.innerHTML = `<b style="color:${color}">[${sender}]:</b> ${text}`;
-        chatBox.appendChild(msg);
-        chatBox.scrollTop = chatBox.scrollHeight;
+      function tambahPesan(pengirim, teks, warna) {
+        const box = document.getElementById('messages');
+        const item = document.createElement('div');
+        item.innerHTML = `<b style="color:${warna}">[${pengirim}]:</b> ${teks}`;
+        box.appendChild(item);
+        box.scrollTop = box.scrollHeight;
       }
 
-      // Supaya bisa tekan Enter untuk kirim chat
-      document.getElementById('chat-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') sendChat();
+      // Enter untuk kirim
+      document.getElementById('chat-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') kirimChat();
       });
     </script>
   </body>
